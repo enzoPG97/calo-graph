@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: calograph
+Version: 0.0.1
+Summary: GNN hit clustering on toy calorimeter data
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: torch
+Requires-Dist: torch_geometric
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"

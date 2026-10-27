@@ -1,0 +1,8 @@
+numpy
+scipy
+torch
+torch_geometric
+
+[dev]
+pytest
+ruff

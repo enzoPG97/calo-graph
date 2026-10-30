@@ -20,7 +20,7 @@ Work in progress. See the repository issues and pull requests for progress.
 - [x] Repository, CI (pytest on every pull request)
 - [x] Toy shower generator with truth particle IDs
 - [x] Merged-shower mode eith tunable separation
-- [] Graph construction and truth edge labels
+- [x] Graph construction and truth edge labels
 - [] GNN edge classifier and baseline
 - [] Evaluation (purity, efficiency, split/merge rate vs separation)
 
@@ -43,16 +43,12 @@ install command for your CUDA version from pytorch.org instead.
 ## Quick start
 
 ```python
-from calograph import generate_event, generate_pair_event, mixing_fraction, truth_summary
+  from calograph import generate_pair_event
+  from calograph.graph import build_graph, to_pyg
 
-# An event with several showers at random positions
-event = generate_event(n_particles=3, seed=7)
-print(event.n_hits, set(event.particle_id))
-
-# Two showers whose axes are 2 cm apart
-pair = generate_pair_event(separation_cm=2.0, seed=7)
-print(truth_summary(pair))      # hits and deposited energy per truth particle
-print(mixing_fraction(pair))    # how entangled the two showers are
+  event = generate_pair_event(separation_cm=2.0, seed=7)
+  data = to_pyg(build_graph(event, k=8))
+  print(data)    # Data(x=[~790, 4], edge_index=[2, ~8000], edge_attr=..., edge_label=...)
 ```
 
 Each hit has a position (`x`, `y`, `z`), `energy`, `time`, `layer`, and the
@@ -63,6 +59,7 @@ To plot examples:
 ```bash
 python examples/plot_event.py
 python examples/plot_separation.py
+python examples/plot_graph.py
 ```
 
 ## Shower model
@@ -94,6 +91,23 @@ of similar size.
 Two 20 GeV electrons, default toy detector (Moliere radius 2 cm), mean over 5
 seeds. Below about 4 cm (two Moliere radii) the showers are genuinely merged,
 and this is the regime the classifier will be tested on.
+
+## Graph construction
+`build_graph(Event,...)` creates the graph using cKDTree from scipy.spatial and then it is convert to a `torch_geometric.data.Data` object using `to_pyg(Hitgraph)`. 
+The graph is bult choosing the nearest neighbours in (x,y,z) direction or from all pairs closer than a givne radius. Time is kept as a feature for this toy model. 
+Edege label is define as equal to one if both hits come from the same truth particle.
+
+![Graph plot of two events at different separations](docs/graph_example.png)
+
+Below are the table of positive-edege fractions for different separation distances:
+| Separation [cm] | Same-particle edges | Hits | Edges |
+|---|---|---|---|
+| 0 | 0.49 | 800 | 7746 |
+| 1 | 0.60 | 800 | 7715 |
+| 2 | 0.76 | 800 | 7738 |
+| 4 | 0.96 | 800 | 7767 |
+| 8 | 1.00 | 800 | 7856 |
+| 15 | 1.00 | 800 | 7856 |
 
 ## Tests
 

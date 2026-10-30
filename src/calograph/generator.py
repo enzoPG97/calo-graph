@@ -6,6 +6,8 @@ All constants are toy values and are not a representation of real materials or d
 from __future__ import annotations
 from dataclasses import dataclass, fields
 import numpy as np
+from scipy.spatial import cKDTree ## This class provides an index into a set of k-dimensional points which can be used to rapidly look up the nearest neighbors of any point.
+
 
 @dataclass(frozen=True)
 class DetectorConfig:
@@ -41,6 +43,10 @@ class Event:
     layer: np.ndarray
     particle_id: np.ndarray  # truth: which particle made the hit
 
+    def __post_init__(self) ->None:
+        lengths = {f.name: len(getattr(self,f.name)) for f in fields(self)}
+        if len(set(lengths.values())) !=1:
+            raise ValueError(f"all hit arrays must have the same lenght, got {lengths}")
     @property
     def n_hits(self) -> int:
         return int(self.energy.shape[0])
@@ -108,9 +114,71 @@ def generate_event(
         energy = rng.uniform(*energy_range_gev)
         x_cm, y_cm = rng.uniform(-window_cm / 2, window_cm / 2, size=2)
         showers.append(generate_shower(energy, x_cm, y_cm, 0.0, pid, cfg, rng))
-
+    
+    #replace merged = {...} with a function that concatenate the hits of several shower into one event.
+    """
     merged = {
         f.name: np.concatenate([getattr(s, f.name) for s in showers])
         for f in fields(Event)
     }
     return Event(**merged)
+    """
+    return merge_showers(showers)
+    
+def merge_showers(showers: list[Event]) -> Event:
+    """ Concatenate the hits of several showers into one event."""
+
+    return Event(
+            **{f.name: np.concatenate([getattr(s, f.name) for s in showers])
+           for f in fields(Event)}
+    )
+
+def generate_pair_event(
+    separation_cm: float,
+    energies_gev: tuple[float, float] = (20.0, 20.0),
+    seed: int | None = None,
+    cfg: DetectorConfig | None = None,
+    angle_rad: float | None = None,
+) -> Event:
+    """Two showers whose axes are separation_cm apart (truth IDs 0 and 1).
+
+    The direction of the offset in the x-y plane is random unless angle_rad
+    is given. The pair is centred on the origin.
+    """
+    if separation_cm < 0:
+        raise ValueError("separation_cm must be >= 0")
+    cfg = cfg or DetectorConfig()
+    rng = np.random.default_rng(seed)
+    angle = rng.uniform(0.0, 2.0 * np.pi) if angle_rad is None else angle_rad
+    dx = 0.5 * separation_cm * np.cos(angle)
+    dy = 0.5 * separation_cm * np.sin(angle)
+    return merge_showers([
+        generate_shower(energies_gev[0], -dx, -dy, 0.0, 0, cfg, rng),
+        generate_shower(energies_gev[1], +dx, +dy, 0.0, 1, cfg, rng),
+    ])
+
+
+def truth_summary(event: Event) -> dict[int, dict[str, float]]:
+    """Number of hits and deposited energy for each truth particle."""
+    out = {}
+    for pid in np.unique(event.particle_id):
+        mask = event.particle_id == pid
+        out[int(pid)] = {
+            "n_hits": int(mask.sum()),
+            "energy_gev": float(event.energy[mask].sum()),
+        }
+    return out
+
+
+def mixing_fraction(event: Event) -> float:
+    """Fraction of hits whose nearest other hit belongs to a different particle.
+
+    0 means the showers are fully separated; about 0.5 means fully overlapping
+    showers of similar size.
+    """
+    if event.n_hits < 2:
+        return 0.0
+    points = np.column_stack([event.x, event.y, event.z])
+    _, idx = cKDTree(points).query(points, k=2)  # column 0 is the hit itself
+    neighbour = idx[:, 1]
+    return float(np.mean(event.particle_id[neighbour] != event.particle_id))

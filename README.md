@@ -21,7 +21,7 @@ Work in progress. See the repository issues and pull requests for progress.
 - [x] Toy shower generator with truth particle IDs
 - [x] Merged-shower mode eith tunable separation
 - [x] Graph construction and truth edge labels
-- [] GNN edge classifier and baseline
+- [x] GNN edge classifier and baseline
 - [] Evaluation (purity, efficiency, split/merge rate vs separation)
 
 ## Installation
@@ -108,7 +108,23 @@ Below are the table of positive-edege fractions for different separation distanc
 | 4 | 0.96 | 800 | 7767 |
 | 8 | 1.00 | 800 | 7856 |
 | 15 | 1.00 | 800 | 7856 |
+## GNN MODEL
+`EdgeClassifier` (in `calograph/model.py`) is a small graph neural network for
+edge classification:
 
+1. An MLP embeds each hit from its node features.
+2. Three rounds of message passing update each hit embedding from the mean of
+   messages sent by its neighbours. A message is computed from the two hit
+   embeddings and the edge features (offsets, distance, time difference), and
+   the update has a residual connection and layer normalisation.
+3. An edge head combines the embeddings of the two end hits with the edge
+   features and outputs one logit per edge (apply a sigmoid for a probability).
+
+The score is built from symmetric functions of the two end hits, so the edges
+(i, j) and (j, i) always receive the same logit. The model has about 23,000
+parameters and runs on a CPU. It is not trained yet.
+
+Current model has 22'977 parameters with 120 hits edge counts of 890 and a loss of 0.733 (untrained binary classifier has a score of ln(2)~0.69)
 ## Tests
 
 ```bash
@@ -117,7 +133,10 @@ pytest -v
 
 The tests check reproducibility, the shower shape (mean depth, 90% of hits
 within one Moliere radius), truth ID and energy bookkeeping, and that the
-mixing fraction falls as the separation grows.
+mixing fraction falls as the separation grows. graph properties
+(no self-loops, undirected, at least k neighbours, labels match the truth),
+and the model (output shape, symmetry, independence of hit ordering, batching,
+gradients, and that the loss decreases when fitting one event).
 
 ## Limitations
 

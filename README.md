@@ -22,6 +22,7 @@ Work in progress. See the repository issues and pull requests for progress.
 - [x] Merged-shower mode eith tunable separation
 - [x] Graph construction and truth edge labels
 - [x] GNN edge classifier and baseline
+- [x] Trainig loop and MLP baseline
 - [] Evaluation (purity, efficiency, split/merge rate vs separation)
 
 ## Installation
@@ -125,6 +126,20 @@ The score is built from symmetric functions of the two end hits, so the edges
 parameters and runs on a CPU. It is not trained yet.
 
 Current model has 22'977 parameters with 120 hits edge counts of 890 and a loss of 0.733 (untrained binary classifier has a score of ln(2)~0.69)
+
+## Training of models
+`python -m calograph.train --config configs/default.json` to run the GNN training
+`python -m calograph.train --config configs/default.json --model mlp` to run the MLP baseline model
+
+Compare MLP and GNN on a small sample of 300 training events and 100 for validation. Created a config file the following info: size, learning rate, seed, model type.
+Here is table comparing results of both models using AUC:
+|Model|Parameters|val loss| Accuracy| AUC |
+|---  | ---      | ---    | ---     | --- |
+|GNN  |22,977    |	0.343 |	0.815   |0.846|
+|MLP baseline	|20,065	|0.373	|0.817	|0.817|
+
+As we can see GNN shows a slight improvement compared to the MLP baseline looking at AUC. The model is small and training was short (20 epochs and 300 events).
+Also following step is comparing efficiency of both model based on the separation distance between shower, which will be a better comparison.
 ## Tests
 
 ```bash
@@ -136,7 +151,7 @@ within one Moliere radius), truth ID and energy bookkeeping, and that the
 mixing fraction falls as the separation grows. graph properties
 (no self-loops, undirected, at least k neighbours, labels match the truth),
 and the model (output shape, symmetry, independence of hit ordering, batching,
-gradients, and that the loss decreases when fitting one event).
+gradients, and that the loss decreases when fitting one event). dataset, metrics, config and training (including reproducibility)
 
 ## Limitations
 
@@ -145,4 +160,4 @@ gradients, and that the loss decreases when fitting one event).
 - Every hit of a shower carries the same energy, and there is no readout
   threshold or noise.
 - Not intended to reproduce any specific experiment's performance.
-
+- Small model and short training.

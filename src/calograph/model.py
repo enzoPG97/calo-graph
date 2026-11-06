@@ -57,3 +57,28 @@ class EdgeClassifier(nn.Module):
             [h[src] + h[dst], (h[src] - h[dst]).abs(), data.edge_attr.abs()], dim=-1
         )
         return self.head(features).squeeze(-1)
+
+class EdgeMLP(nn.Module):
+    """Baseline: classify each edge from local features only.
+
+    It sees the two end hits and the edge features, but no neighbourhood, so
+    comparing it with EdgeClassifier shows what message passing adds. The input
+    is symmetric under swapping the two end hits, like the GNN head.
+    """
+
+    def __init__(self, node_dim: int = 4, edge_dim: int = 5, hidden: int = 96) -> None:
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(2 * node_dim + edge_dim, hidden), nn.ReLU(),
+            nn.Linear(hidden, hidden), nn.ReLU(),
+            nn.Linear(hidden, hidden), nn.ReLU(),
+            nn.Linear(hidden, 1),
+        )
+
+    def forward(self, data) -> torch.Tensor:
+        src, dst = data.edge_index
+        features = torch.cat(
+            [data.x[src] + data.x[dst], (data.x[src] - data.x[dst]).abs(), data.edge_attr.abs()],
+            dim=-1,
+        )
+        return self.net(features).squeeze(-1)

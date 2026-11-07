@@ -24,6 +24,7 @@ Work in progress. See the repository issues and pull requests for progress.
 - [x] GNN edge classifier and baseline
 - [x] Trainig loop and MLP baseline
 - [x] Evaluation (purity, efficiency, split/merge rate vs separation)
+- [x] CI on python 3.12  and 3.14
 
 ## Installation
 Requires Python 3.10 or newer (developed on 3.14).
@@ -185,7 +186,7 @@ mixing fraction falls as the separation grows. graph properties
 (no self-loops, undirected, at least k neighbours, labels match the truth),
 and the model (output shape, symmetry, independence of hit ordering, batching,
 gradients, and that the loss decreases when fitting one event). dataset, metrics, config and training (including reproducibility)
-
+Updated of the CI to un the tests on python 3.12 and 3.14 (CPU build of PyTorch)
 ## Limitations
 
 - Simulated toy data only, no real detector geometry or full simulation.
@@ -194,3 +195,4 @@ gradients, and that the loss decreases when fitting one event). dataset, metrics
   threshold or noise.
 - Not intended to reproduce any specific experiment's performance.
 - Small model and short training.
+

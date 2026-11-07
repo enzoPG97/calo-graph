@@ -26,8 +26,22 @@ Work in progress. See the repository issues and pull requests for progress.
 - [x] Evaluation (purity, efficiency, split/merge rate vs separation)
 - [x] CI on python 3.12  and 3.14
 
+
+## Key results
+
+- **Clustering the kNN graph without a model merges the showers.** Keeping every
+  edge merges the two showers in 80-100% of events at every separation up to 8 cm,
+  because a few stray cross-particle edges connect them.
+- **Edge classification works well once the showers are apart.** Edge AUC rises
+  from 0.52 (0-1 cm) to 0.99 (6-8 cm). Below about 2 cm neither model separates the
+  showers (cluster efficiency stays under 0.25).
+- **The GNN is only modestly better than a local MLP baseline.** Edge AUC is
+  essentially the same (differences of at most 0.004 up to 6 cm). At the cluster
+  level the GNN has a lower merge rate and higher purity at 2-4 cm, and the MLP is
+  cleaner at 4-8 cm. With one training run per model, treat this as weak evidence.
+
 ## Installation
-Requires Python 3.10 or newer (developed on 3.14).
+Requires Python 3.10 or newer (tested on 3.12 and 3.14).
 
 ```bash
 git clone https://github.com/enzoPG97/calo-graph.git
@@ -39,30 +53,47 @@ pip install torch_geometric
 pip install -e ".[dev]"
 ```
 
-The CPU build of PyTorch is enough for this project. For a GPU, take the
-install command for your CUDA version from pytorch.org instead.
+The CPU build of PyTorch is enough. For a GPU, take the install command for your
+CUDA version from pytorch.org. On Python 3.14, PyTorch prints a harmless
+`FutureWarning` about `torch.jit.script`.
+
 
 ## Quick start
 
 ```python
-  from calograph import generate_pair_event
-  from calograph.graph import build_graph, to_pyg
+import torch
 
-  event = generate_pair_event(separation_cm=2.0, seed=7)
-  data = to_pyg(build_graph(event, k=8))
-  print(data)    # Data(x=[~790, 4], edge_index=[2, ~8000], edge_attr=..., edge_label=...)
+from calograph import generate_pair_event, mixing_fraction, truth_summary
+from calograph.graph import build_graph, to_pyg
+from calograph.model import EdgeClassifier
+
+# Two showers whose axes are 2 cm apart
+event = generate_pair_event(separation_cm=2.0, seed=7)
+print(truth_summary(event))      # hits and deposited energy per truth particle
+print(mixing_fraction(event))    # how entangled the two showers are
+
+# Hit graph with truth edge labels, as a PyTorch Geometric object
+data = to_pyg(build_graph(event, k=8))
+print(data)
+
+# Untrained model: one logit per edge
+model = EdgeClassifier()
+probability_same_particle = torch.sigmoid(model(data))
 ```
+
 
 Each hit has a position (`x`, `y`, `z`), `energy`, `time`, `layer`, and the
-truth `particle_id`. The same seed always gives the same event.
+truth `particle_id`.
 
-To plot examples:
+Reproduce the results:
 
 ```bash
-python examples/plot_event.py
-python examples/plot_separation.py
-python examples/plot_graph.py
+python -m calograph.train --config configs/default.json
+python -m calograph.train --config configs/default.json --model mlp
+python -m calograph.evaluation --checkpoints checkpoints --out results/evaluation.json
+python examples/plot_results.py
 ```
+
 
 ## Shower model
 
@@ -177,8 +208,13 @@ Calculation the standerd error (SE) of a proportion ( merge/split rate) we get: 
 ## Tests
 
 ```bash
+pip install -e ".[dev]"
 pytest -v
 ```
+
+Every pull request runs the tests in CI. Code is in `src/calograph/`, examples in
+`examples/`, settings in `configs/`, and results in `results/`.
+
 
 The tests check reproducibility, the shower shape (mean depth, 90% of hits
 within one Moliere radius), truth ID and energy bookkeeping, and that the
@@ -187,12 +223,17 @@ mixing fraction falls as the separation grows. graph properties
 and the model (output shape, symmetry, independence of hit ordering, batching,
 gradients, and that the loss decreases when fitting one event). dataset, metrics, config and training (including reproducibility)
 Updated of the CI to un the tests on python 3.12 and 3.14 (CPU build of PyTorch)
+
+
 ## Limitations
 
-- Simulated toy data only, no real detector geometry or full simulation.
-- Electron-like showers only, with no hadronic showers or noise yet.
-- Every hit of a shower carries the same energy, and there is no readout
-  threshold or noise.
-- Not intended to reproduce any specific experiment's performance.
-- Small model and short training.
-
+- Simulated toy data only, with no real detector geometry or full simulation.
+- Electron-like showers only, with no hadronic showers, noise or readout thresholds.
+  Every hit of a shower carries the same energy.
+- One training run (seed 0) per model and 40 test events per bin, so small
+  differences between the models are not established.
+- Clustering by connected components is crude. A hit that loses all its edges
+  counts as inefficiency, and one surviving cross-particle edge merges two showers.
+- The evaluation threshold is chosen on the validation events used for early
+  stopping, which is slightly optimistic. The test events are separate.
+- Not optimised: 20 epochs on 300 events, with no hyperparameter search.

@@ -23,7 +23,7 @@ Work in progress. See the repository issues and pull requests for progress.
 - [x] Graph construction and truth edge labels
 - [x] GNN edge classifier and baseline
 - [x] Trainig loop and MLP baseline
-- [] Evaluation (purity, efficiency, split/merge rate vs separation)
+- [x] Evaluation (purity, efficiency, split/merge rate vs separation)
 
 ## Installation
 Requires Python 3.10 or newer (developed on 3.14).
@@ -140,6 +140,37 @@ Here is table comparing results of both models using AUC:
 
 As we can see GNN shows a slight improvement compared to the MLP baseline looking at AUC. The model is small and training was short (20 epochs and 300 events).
 Also following step is comparing efficiency of both model based on the separation distance between shower, which will be a better comparison.
+
+## Evaluation
+` python -m calograph.evaluation --checkpoints checkpoints --out results/evaluation.json`
+` python examples/plot_results.py `
+This section was to evaluate the models as a function of the separation instead of pure AUC comparison. While the models and training set where generated with different seeds than the sample used for evalutions (Model was traine dup to a separtion of 6 cm) but the data used for evaluation goes up to 8 cm.
+
+We can see that the GNN and MLP are quite similar with a sligth improvement for the GNN up to 4 cm while the MLP imrpoves above it, region where purity is higher and with lower merge/split rate. Also the size of the evaluation sample should be taken into account. 
+
+Calculation the standerd error (SE) of a proportion ( merge/split rate) we get: $` SE=\sqrt(p(1-p)/n) `$
+![Graph plot of different efficiency parameters as a function of shower separation](docs/results.png)
+
+| Separation [cm] | Model | Edge AUC | Purity | Efficiency | Merge rate | Split rate ± SE | Clusters |
+|---|---|---|---|---|---|---|---|
+| 0-1 | GNN | 0.522 | 0.947 | 0.107 | 0.85 | 0.03 ± 0.03 | 1.55 |
+| 0-1 | MLP | 0.524 | 0.924 | 0.137 | 1.00 | 0.07 ± 0.04 | 1.88 |
+| 0-1 | keep all edges | - | 0.582 | 0.913 | 1.00 | 0.50 ± 0.08 | 1.95 |
+| 1-2 | GNN | 0.641 | 0.957 | 0.235 | 0.80 | 0.05 ± 0.03 | 1.57 |
+| 1-2 | MLP | 0.640 | 0.938 | 0.237 | 0.85 | 0.10 ± 0.05 | 1.65 |
+| 1-2 | keep all edges | - | 0.615 | 0.915 | 1.00 | 0.40 ± 0.08 | 2.00 |
+| 2-3 | GNN | 0.767 | 0.960 | 0.422 | 0.25 | 0.00 (< 0.08) | 1.85 |
+| 2-3 | MLP | 0.763 | 0.925 | 0.392 | 0.57 | 0.00 (< 0.08) | 1.68 |
+| 2-3 | keep all edges | - | 0.601 | 0.927 | 1.00 | 0.35 ± 0.08 | 1.85 |
+| 3-4 | GNN | 0.872 | 0.984 | 0.573 | 0.05 | 0.00 (< 0.08) | 2.20 |
+| 3-4 | MLP | 0.869 | 0.937 | 0.541 | 0.28 | 0.00 (< 0.08) | 2.10 |
+| 3-4 | keep all edges | - | 0.584 | 0.918 | 1.00 | 0.45 ± 0.08 | 1.95 |
+| 4-6 | GNN | 0.955 | 0.958 | 0.762 | 0.12 | 0.28 ± 0.07 | 2.77 |
+| 4-6 | MLP | 0.956 | 0.978 | 0.730 | 0.07 | 0.03 ± 0.03 | 2.73 |
+| 4-6 | keep all edges | - | 0.598 | 0.918 | 1.00 | 0.47 ± 0.08 | 1.98 |
+| 6-8 | GNN | 0.987 | 0.979 | 0.906 | 0.28 | 0.33 ± 0.07 | 2.95 |
+| 6-8 | MLP | 0.999 | 1.000 | 0.879 | 0.00 | 0.25 ± 0.07 | 2.98 |
+| 6-8 | keep all edges | - | 0.817 | 0.923 | 0.80 | 0.35 ± 0.08 | 2.60 |
 ## Tests
 
 ```bash

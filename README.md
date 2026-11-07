@@ -224,7 +224,43 @@ and the model (output shape, symmetry, independence of hit ordering, batching,
 gradients, and that the loss decreases when fitting one event). dataset, metrics, config and training (including reproducibility)
 Updated of the CI to un the tests on python 3.12 and 3.14 (CPU build of PyTorch)
 
+## Possible extensions
 
+### Model
+**Add a model.** Improvement of the current models used for example on the scaled edge length.
+
+adding a new model will still work since the function ``evaluate_by_separation` accepts any function that maps a graph to edge logits, so a new model can be evaluated without touching the command-line tools. To use it from `python -m calograph.train`, also (1) add a branch for its name in `build_model` in `train.py`, and (2) add the name to the `--model` choices in `train.main`. To include it in `python -m calograph.evaluation` and the plot, add its name to the loop in `evaluation.main` and to the `style` dictionary in `examples/plot_results.py`.
+
+### Shower and detectors parameters
+The simulation were run based on electrons of ~20 GeV with a simple detector structure (see `DetectorConfig` (`generator.py`)), where we choose some values based. More realisctic values should be selected, for example looking for existing detectors/experiments.
+Need to redo training since both scripts use the default configuration, , so training on another detector means passing
+`cfg` through `make_dataset`. New per-hit quantities can be added as fields of
+`Event`: `merge_showers` picks them up automatically.
+
+### Change the graph.
+ `build_graph` uses `knn_edges` (or `radius_edges` if
+`radius_cm` is given). A new neighbour rule only has to return an integer array of
+shape `[2, n_edges]`. If you change the number of node or edge features, update
+`node_dim` and `edge_dim` in `EdgeClassifier` and `EdgeMLP`.
+
+### Change the clustering or the metrics.
+ `cluster_hits` turns edge scores into
+cluster labels, and `cluster_metrics` compares them with the truth. To try another
+clustering algorithm, replace the call in `evaluate_by_separation` and
+`select_threshold`. The working point is set by `min_purity` in `select_threshold`.
+
+### Contribute.
+ Create a branch, add tests for what you change, run `pytest -v`,
+and open a pull request. CI must be green before merging.
+
+### Ideas
+- Insteadn of using a toy MC simulation used Geant4 or else to generate more realistic simulations for training
+- Train several seeds per model and report the mean and spread of the results.
+- Test the GNN-MLP differences with a paired test or a bootstrap over events.
+- Assign small cluster fragments to the nearest large cluster before computing
+  efficiency.
+- Add hit-energy variation, noise, hadronic showers or more than two showers.
+- Try a learned or per-separation threshold.
 ## Limitations
 
 - Simulated toy data only, with no real detector geometry or full simulation.

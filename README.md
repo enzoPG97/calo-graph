@@ -144,6 +144,8 @@ Also following step is comparing efficiency of both model based on the separatio
 ## Evaluation
 ` python -m calograph.evaluation --checkpoints checkpoints --out results/evaluation.json`
 ` python examples/plot_results.py `
+
+
 This section was to evaluate the models as a function of the separation instead of pure AUC comparison. While the models and training set where generated with different seeds than the sample used for evalutions (Model was traine dup to a separtion of 6 cm) but the data used for evaluation goes up to 8 cm.
 
 We can see that the GNN and MLP are quite similar with a sligth improvement for the GNN up to 4 cm while the MLP imrpoves above it, region where purity is higher and with lower merge/split rate. Also the size of the evaluation sample should be taken into account. 

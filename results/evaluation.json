@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "bins": [
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      6.0,
+      8.0
+    ],
+    "events_per_bin": 40,
+    "test_seed": 2026,
+    "thresholds": {
+      "gnn": 2.0,
+      "mlp": 2.0
+    }
+  },
+  "gnn": [
+    {
+      "sep_lo": 0.0,
+      "sep_hi": 1.0,
+      "n_events": 40,
+      "auc": 0.522054992806784,
+      "purity": 0.9470330434477056,
+      "efficiency": 0.10681954897208698,
+      "merge_rate": 0.85,
+      "split_rate": 0.025,
+      "mean_clusters": 1.55
+    },
+    {
+      "sep_lo": 1.0,
+      "sep_hi": 2.0,
+      "n_events": 40,
+      "auc": 0.6408132864719016,
+      "purity": 0.9567830067798134,
+      "efficiency": 0.23484332167309702,
+      "merge_rate": 0.8,
+      "split_rate": 0.05,
+      "mean_clusters": 1.575
+    },
+    {
+      "sep_lo": 2.0,
+      "sep_hi": 3.0,
+      "n_events": 40,
+      "auc": 0.7666046722543752,
+      "purity": 0.9597284009928819,
+      "efficiency": 0.42230784243944386,
+      "merge_rate": 0.25,
+      "split_rate": 0.0,
+      "mean_clusters": 1.85
+    },
+    {
+      "sep_lo": 3.0,
+      "sep_hi": 4.0,
+      "n_events": 40,
+      "auc": 0.872287049973689,
+      "purity": 0.9839196941376986,
+      "efficiency": 0.5734906850140608,
+      "merge_rate": 0.05,
+      "split_rate": 0.0,
+      "mean_clusters": 2.2
+    },
+    {
+      "sep_lo": 4.0,
+      "sep_hi": 6.0,
+      "n_events": 40,
+      "auc": 0.9554326148485704,
+      "purity": 0.958287778987249,
+      "efficiency": 0.7622789017586942,
+      "merge_rate": 0.125,
+      "split_rate": 0.275,
+      "mean_clusters": 2.775
+    },
+    {
+      "sep_lo": 6.0,
+      "sep_hi": 8.0,
+      "n_events": 40,
+      "auc": 0.9871133394788317,
+      "purity": 0.9785960435327057,
+      "efficiency": 0.9057114545986866,
+      "merge_rate": 0.275,
+      "split_rate": 0.325,
+      "mean_clusters": 2.95
+    }
+  ],
+  "mlp": [
+    {
+      "sep_lo": 0.0,
+      "sep_hi": 1.0,
+      "n_events": 40,
+      "auc": 0.5239892598377468,
+      "purity": 0.9236864488391383,
+      "efficiency": 0.13687261950252785,
+      "merge_rate": 1.0,
+      "split_rate": 0.075,
+      "mean_clusters": 1.875
+    },
+    {
+      "sep_lo": 1.0,
+      "sep_hi": 2.0,
+      "n_events": 40,
+      "auc": 0.6404251419954715,
+      "purity": 0.937672273306274,
+      "efficiency": 0.23714675912508437,
+      "merge_rate": 0.85,
+      "split_rate": 0.1,
+      "mean_clusters": 1.65
+    },
+    {
+      "sep_lo": 2.0,
+      "sep_hi": 3.0,
+      "n_events": 40,
+      "auc": 0.7628926789316302,
+      "purity": 0.9245870727292569,
+      "efficiency": 0.39164463355496026,
+      "merge_rate": 0.575,
+      "split_rate": 0.0,
+      "mean_clusters": 1.675
+    },
+    {
+      "sep_lo": 3.0,
+      "sep_hi": 4.0,
+      "n_events": 40,
+      "auc": 0.8692686665212741,
+      "purity": 0.9370826125689945,
+      "efficiency": 0.5408729650112691,
+      "merge_rate": 0.275,
+      "split_rate": 0.0,
+      "mean_clusters": 2.1
+    },
+    {
+      "sep_lo": 4.0,
+      "sep_hi": 6.0,
+      "n_events": 40,
+      "auc": 0.9562290764798207,
+      "purity": 0.9783465365923745,
+      "efficiency": 0.7296657026824365,
+      "merge_rate": 0.075,
+      "split_rate": 0.025,
+      "mean_clusters": 2.725
+    },
+    {
+      "sep_lo": 6.0,
+      "sep_hi": 8.0,
+      "n_events": 40,
+      "auc": 0.9994693886727972,
+      "purity": 1.0,
+      "efficiency": 0.8790402355188881,
+      "merge_rate": 0.0,
+      "split_rate": 0.25,
+      "mean_clusters": 2.975
+    }
+  ],
+  "graph": [
+    {
+      "sep_lo": 0.0,
+      "sep_hi": 1.0,
+      "n_events": 40,
+      "auc": 0.5,
+      "purity": 0.5815423929160136,
+      "efficiency": 0.9132390512061207,
+      "merge_rate": 1.0,
+      "split_rate": 0.5,
+      "mean_clusters": 1.95
+    },
+    {
+      "sep_lo": 1.0,
+      "sep_hi": 2.0,
+      "n_events": 40,
+      "auc": 0.5,
+      "purity": 0.6150343520715505,
+      "efficiency": 0.91464016198367,
+      "merge_rate": 1.0,
+      "split_rate": 0.4,
+      "mean_clusters": 2.0
+    },
+    {
+      "sep_lo": 2.0,
+      "sep_hi": 3.0,
+      "n_events": 40,
+      "auc": 0.5,
+      "purity": 0.6013157497873237,
+      "efficiency": 0.9274165800265652,
+      "merge_rate": 1.0,
+      "split_rate": 0.35,
+      "mean_clusters": 1.85
+    },
+    {
+      "sep_lo": 3.0,
+      "sep_hi": 4.0,
+      "n_events": 40,
+      "auc": 0.5,
+      "purity": 0.5835284891503176,
+      "efficiency": 0.9179101344168524,
+      "merge_rate": 1.0,
+      "split_rate": 0.45,
+      "mean_clusters": 1.95
+    },
+    {
+      "sep_lo": 4.0,
+      "sep_hi": 6.0,
+      "n_events": 40,
+      "auc": 0.5,
+      "purity": 0.5975142626453669,
+      "efficiency": 0.9183197153244134,
+      "merge_rate": 1.0,
+      "split_rate": 0.475,
+      "mean_clusters": 1.975
+    },
+    {
+      "sep_lo": 6.0,
+      "sep_hi": 8.0,
+      "n_events": 40,
+      "auc": 0.5,
+      "purity": 0.8166494168109463,
+      "efficiency": 0.9234904978287771,
+      "merge_rate": 0.8,
+      "split_rate": 0.35,
+      "mean_clusters": 2.6
+    }
+  ]
+}

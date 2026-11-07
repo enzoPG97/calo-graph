@@ -16,6 +16,7 @@ def make_dataset(
     energy_range_gev: tuple[float, float] = (3.0, 10.0),
     k: int = 8,
     cfg: DetectorConfig | None = None,
+    min_sep_cm: float = 0.0,
 ) -> list:
     """Generate n_events two-shower events with separations uniform in [0, max_sep_cm].
 
@@ -25,7 +26,7 @@ def make_dataset(
     rng = np.random.default_rng(seed)
     graphs = []
     for _ in range(n_events):
-        sep = float(rng.uniform(0.0, max_sep_cm))
+        sep = float(rng.uniform(min_sep_cm, max_sep_cm))
         energies = tuple(float(e) for e in rng.uniform(*energy_range_gev, size=2))
         event_seed = int(rng.integers(0, 2**31 - 1))
         event = generate_pair_event(sep, energies_gev=energies, seed=event_seed, cfg=cfg)
